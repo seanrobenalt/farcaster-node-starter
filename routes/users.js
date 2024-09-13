@@ -9,22 +9,22 @@ const {
   makeCastAdd,
 } = require("@farcaster/hub-nodejs");
 
-router.post("/add", async (req, res) => {
+router.post("/", async (req, res) => {
   try {
     const { fid } = req.body;
 
     const existingUser = await User.findOne({ fid });
 
     if (existingUser) {
-      return res.status(400).send("User with this fid already exists");
+      return res.status(200).send({ message: "User already exists" });
     }
 
-    const newUser = new User({ fid, signerKey });
+    const newUser = new User({ fid });
     await newUser.save();
 
-    res.status(201).send("User added successfully");
+    res.status(201).send({ message: "User added successfully" });
   } catch (error) {
-    res.status(500).send("Error adding user: " + error.message);
+    res.status(500).send({ errors: "Error adding user: " + error.message });
   }
 });
 
@@ -36,16 +36,16 @@ router.put("/update/:fid", async (req, res) => {
     const user = await User.findOne({ fid });
 
     if (!user) {
-      return res.status(404).send("User not found");
+      return res.status(404).send({ error: "User not found" });
     }
 
     user.signerKey = signerKey;
 
     await user.save();
 
-    res.status(200).send("User updated successfully");
+    res.status(200).send({ message: "User updated successfully" });
   } catch (error) {
-    res.status(500).send("Error updating user: " + error.message);
+    res.status(500).send({ errors: "Error updating user: " + error.message });
   }
 });
 
@@ -94,9 +94,9 @@ router.post("/cast/:fid", async (req, res) => {
 
     const createdCast = cast._unsafeUnwrap();
 
-    res.status(201).send(createdCast);
+    res.status(201).send({ cast: createdCast });
   } catch (error) {
-    res.status(500).send("Error casting: " + error.message);
+    res.status(500).send({ errors: "Error casting: " + error.message });
   }
 });
 
